@@ -47,7 +47,7 @@ export default function Dashboard() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "", instruction: promptText }),
+        body: JSON.stringify({ message: "", instruction: promptText, patientId: pat.id, resultType: type }),
       });
 
       const data = await res.json();

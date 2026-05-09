@@ -2,6 +2,7 @@
 
 import { COLORS } from "@/app/components/constants/colors";
 import { EDU_LIBRARY } from "@/app/components/constants/edu-lib";
+import ReactMarkdown from "react-markdown";
 import { useState } from "react";
 
 interface EducationTabProps {
@@ -218,18 +219,24 @@ export const EducationTab: React.FC<EducationTabProps> = ({
                       overflowY: "auto",
                     }}
                   >
-                    <pre
-                      style={{
-                        fontSize: 12,
-                        color: COLORS.text,
-                        lineHeight: 1.65,
-                        whiteSpace: "pre-wrap",
-                        margin: 0,
-                      }}
-                      className="font-sans"
-                    >
-                      {result}
-                    </pre>
+                    <div style={{ fontSize: 12, color: COLORS.text, lineHeight: 1.65 }}>
+                      <ReactMarkdown
+                        components={{
+                          h1: ({ children }) => <h1 style={{ fontSize: 15, fontWeight: 700, color: COLORS.teallt, marginBottom: 8, marginTop: 12 }}>{children}</h1>,
+                          h2: ({ children }) => <h2 style={{ fontSize: 13, fontWeight: 600, color: COLORS.teallt, marginBottom: 6, marginTop: 10 }}>{children}</h2>,
+                          h3: ({ children }) => <h3 style={{ fontSize: 12, fontWeight: 600, color: "#C4B5FD", marginBottom: 4, marginTop: 8 }}>{children}</h3>,
+                          p:  ({ children }) => <p style={{ marginBottom: 8, marginTop: 0 }}>{children}</p>,
+                          ul: ({ children }) => <ul style={{ paddingLeft: 18, marginBottom: 8, marginTop: 4 }}>{children}</ul>,
+                          ol: ({ children }) => <ol style={{ paddingLeft: 18, marginBottom: 8, marginTop: 4 }}>{children}</ol>,
+                          li: ({ children }) => <li style={{ marginBottom: 3 }}>{children}</li>,
+                          strong: ({ children }) => <strong style={{ color: "#E2E8F0", fontWeight: 600 }}>{children}</strong>,
+                          hr: () => <hr style={{ borderColor: COLORS.border, margin: "10px 0" }} />,
+                          code: ({ children }) => <code style={{ background: "#0A1A2E", padding: "1px 5px", borderRadius: 3, fontSize: 11, color: COLORS.teallt }}>{children}</code>,
+                        }}
+                      >
+                        {result}
+                      </ReactMarkdown>
+                    </div>
                   </div>
 
                   <div className="flex gap-2">
