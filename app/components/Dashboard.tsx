@@ -180,14 +180,24 @@ export default function Dashboard() {
             {tab === "assessments" && <AssessmentsTab patient={pat} />}
             {tab === "clinical_plan" && (
               <ClinicalPlanTab
-                results={aiR}
+                results={{ // map the keys the tab expects
+                  differential: getR("differential"),
+                  treatment_plan: getR("treatment_plan"),
+                  loc: getR("loc"),
+                }}
                 loading={ldg}
                 onGenerate={callAI}
               />
             )}
             {tab === "ai_toolkit" && (
               <AIToolkitTab
-                results={aiR}
+                results={{
+                  summary: getR("summary"),
+                  soap: getR("soap"),
+                  med_recs: getR("med_recs"),
+                  lab_recs: getR("lab_recs"),
+                  topic_helper: getR("topic_helper"),
+                }}
                 loading={ldg}
                 onGenerate={callAI}
                 isNP={isNP}
