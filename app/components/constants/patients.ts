@@ -83,7 +83,6 @@ export const patients = [
           "Refer for immediate in-person psychiatric evaluation. Notify clinical director.",
       },
     ],
-    smi: null,
     alerts: [
       "PHQ-9 Item 9 = 3 — Active SI reported",
       "Severe PHQ-9 (21/27)",
@@ -136,7 +135,6 @@ export const patients = [
         action: "Refer to in-person psychiatry. Pull PDMP. Do not prescribe.",
       },
     ],
-    smi: null,
     alerts: [
       "Controlled substance request — PDMP check required",
       "Verify prior prescriber documentation",

@@ -1,12 +1,6 @@
-import React from 'react'
-import Patients from './components/sidebar/patients'
+"use client";
+import Dashboard from "./components/Dashboard";
 
-const page = () => {
-  return (
-    <>
-      <Patients />
-    </>
-  )
+export default function Home() {
+  return <Dashboard />;
 }
-
-export default page

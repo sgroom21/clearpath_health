@@ -4,19 +4,21 @@ import { patients } from "@/app/components/constants/patients";
 const Patients = () => {
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-10 bg-blue-800">
         {patients.map((p) => (
-          <div
+          <button
             key={p.id}
-            className="text-black p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col dark:text-white"
+            className="text-black dark:text-white w-[50%]"
           >
             <h1 className='rounded-full border-2 w-12 h-fit p-2 flex items-center justify-center'>{p.init}</h1>
-            <h2 className="font-bold">
-              {p.name}{" "}
-              <span className=" w-full flex-end font-medium">{p.time}</span>
-            </h2>
-            <p className="text-xs text-gray-400">{p.type}</p>
-          </div>
+            <div className="text-left">
+              <h2 className="font-bold">
+                {p.name}{" "}
+                <span className="text-right font-medium">{p.time}</span>
+              </h2>
+              <p className="text-xs text-gray-400">{p.type}</p>
+            </div>
+          </button>
         ))}
       </div>
     </>

@@ -1,63 +1,63 @@
-export const eduLib = [
-    {"Depression": [
-        "Understanding Depression: What It Is and Isn't",
-        "Behavioral Activation for Depression",
-        "Sleep and Depression Connection",
-        "When Medication Helps — What to Expect",
-        "Warning Signs That Need Immediate Attention"
-    ]},
-    {"Anxiety": [
-        "Understanding the Anxiety Cycle",
-        "Breathing Techniques: Box & 4-7-8",
-        "Cognitive Restructuring Basics",
-        "The 5-4-3-2-1 Grounding Technique",
-        "Generalized Anxiety vs. Normal Worry"
-    ]},
-    {"PTSD / Trauma": [
-        "Understanding Trauma Responses",
-        "The Window of Tolerance",
-        "Grounding for Trauma Flashbacks",
-        "What Is EMDR?",
-        "Building a Personal Safety Plan"
-    ]},
-    {"Bipolar": [
-        "Understanding Bipolar Disorder",
-        "Mood Tracking and Early Warning Signs",
-        "Why Medication Adherence Matters",
-        "Sleep as a Mood Stabilizer",
-        "Building a Wellness Action Plan"
-    ]},
-    {"Coping Skills": [
-        "DBT TIPP Skills for Intense Emotions",
-        "Progressive Muscle Relaxation",
-        "Mindfulness: Starting a Practice",
-        "Distress Tolerance: The STOP Skill",
-        "Opposite Action in DBT"
-    ]},
-    {"Medications": [
-        "SSRIs: What to Expect in the First Month",
-        "Never Stop Medication Abruptly",
-        "Managing Common Side Effects",
-        "Drug-Drug Interactions to Know",
-        "Medication and Pregnancy: What to Discuss"
-    ]},
-    {"Substance Use": [
-        "Understanding Addiction and the Brain",
-        "HALT: Recognizing Your Triggers",
-        "Harm Reduction Principles",
-        "Building a Recovery Support Network",
-        "Urge Surfing Technique"
-    ]},
-    {"Sleep": [
-        "Sleep Hygiene Fundamentals",
-        "CBT-I: Cognitive Behavioral Therapy for Insomnia",
-        "Stimulus Control for Better Sleep",
-        "Understanding Sleep Architecture"
-    ]},
-    {"Crisis Resources": [
-        "988 Suicide & Crisis Lifeline",
-        "Creating a Personal Safety Plan",
-        "Warning Signs of a Mental Health Crisis",
-        "How to Support a Loved One in Crisis"
-    ]}
-]
+export const EDU_LIBRARY = {
+  Depression: [
+    "Understanding Depression: What It Is and Isn't",
+    "Behavioral Activation for Depression",
+    "Sleep and Depression Connection",
+    "When Medication Helps — What to Expect",
+    "Warning Signs That Need Immediate Attention",
+  ],
+  Anxiety: [
+    "Understanding the Anxiety Cycle",
+    "Breathing Techniques: Box & 4-7-8",
+    "Cognitive Restructuring Basics",
+    "The 5-4-3-2-1 Grounding Technique",
+    "Generalized Anxiety vs. Normal Worry",
+  ],
+  "PTSD / Trauma": [
+    "Understanding Trauma Responses",
+    "The Window of Tolerance",
+    "Grounding for Trauma Flashbacks",
+    "What Is EMDR?",
+    "Building a Personal Safety Plan",
+  ],
+  Bipolar: [
+    "Understanding Bipolar Disorder",
+    "Mood Tracking and Early Warning Signs",
+    "Why Medication Adherence Matters",
+    "Sleep as a Mood Stabilizer",
+    "Building a Wellness Action Plan",
+  ],
+  "Coping Skills": [
+    "DBT TIPP Skills for Intense Emotions",
+    "Progressive Muscle Relaxation",
+    "Mindfulness: Starting a Practice",
+    "Distress Tolerance: The STOP Skill",
+    "Opposite Action in DBT",
+  ],
+  Medications: [
+    "SSRIs: What to Expect in the First Month",
+    "Never Stop Medication Abruptly",
+    "Managing Common Side Effects",
+    "Drug-Drug Interactions to Know",
+    "Medication and Pregnancy: What to Discuss",
+  ],
+  "Substance Use": [
+    "Understanding Addiction and the Brain",
+    "HALT: Recognizing Your Triggers",
+    "Harm Reduction Principles",
+    "Building a Recovery Support Network",
+    "Urge Surfing Technique",
+  ],
+  Sleep: [
+    "Sleep Hygiene Fundamentals",
+    "CBT-I: Cognitive Behavioral Therapy for Insomnia",
+    "Stimulus Control for Better Sleep",
+    "Understanding Sleep Architecture",
+  ],
+  "Crisis Resources": [
+    "988 Suicide & Crisis Lifeline",
+    "Creating a Personal Safety Plan",
+    "Warning Signs of a Mental Health Crisis",
+    "How to Support a Loved One in Crisis",
+  ],
+} as const;
