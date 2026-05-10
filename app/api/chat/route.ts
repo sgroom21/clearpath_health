@@ -112,15 +112,24 @@ export async function POST(req: NextRequest) {
 
     // 7. Save AI result to Supabase
     if (patientId && resultType) {
-      await supabaseAdmin.from("ai_results").insert({
+      const { error: resultError } = await supabaseAdmin.from("ai_results").insert({
         clinician_id: userId,
         patient_id: patientId,
         result_type: resultType,
         content: reply,
       });
-
-      // 8. Write audit log
-      await writeAuditLog(userId, patientId, "generate", resultType);
+    
+      if (resultError) console.error("ai_results insert error:", resultError);
+    
+      const { error: auditError } = await supabaseAdmin.from("audit_logs").insert({
+        clinician_id: userId,
+        patient_id: patientId,
+        action: "generate",
+        result_type: resultType,
+        metadata: {},
+      });
+    
+      if (auditError) console.error("audit_logs insert error:", auditError);
     }
 
     return NextResponse.json({ reply });
