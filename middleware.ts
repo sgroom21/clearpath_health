@@ -4,6 +4,11 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Allow PDF downloads without re-authentication
+  if (req.nextUrl.pathname.match(/^\/api\/\d+$/)) {
+    return NextResponse.next();
+  }
+
   if (!isPublicRoute(req)) {
     await auth.protect();
   }

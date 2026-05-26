@@ -14,10 +14,15 @@ import PatientHeader from "@/app/components/Header";
 import PatientSidebar from "@/app/components/PatientSidebar";
 
 export default function Dashboard() {
+  type AIResult = {
+    content: string;
+    id?: number;
+  };
+
   const [selId, setSelId] = useState(1);
   const [tab, setTab] = useState("overview");
   const [role, setRole] = useState("PMHNP");
-  const [aiR, setAiR] = useState<Record<string, string>>({});
+  const [aiR, setAiR] = useState<Record<string, AIResult>>({});
   const [ldg, setLdg] = useState<Record<string, boolean>>({});
   const [eduCat, setEduCat] = useState("Depression");
   const [noteItems, setNoteItems] = useState<string[]>([]);
@@ -38,28 +43,57 @@ export default function Dashboard() {
 
   const callAI = async (type: string, extra: string = "") => {
     const key = `${pat.id}-${type}`;
-    setLdg((p) => ({ ...p, [type]: true }));
+
+    setLdg((p) => ({
+      ...p,
+      [type]: true,
+    }));
 
     const prompt = buildPrompts(pat.id, extra);
+
     const promptText = prompt[type as keyof typeof prompt];
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "", instruction: promptText, patientId: pat.id, resultType: type }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: "",
+          instruction: promptText,
+          patientId: pat.id,
+          resultType: type,
+        }),
       });
 
       const data = await res.json();
-      setAiR((p) => ({ ...p, [key]: data.reply || "No response generated." }));
+
+      setAiR((p) => ({
+        ...p,
+        [key]: {
+          content: data.reply || "No response generated.",
+          id: data.resultId,
+        },
+      }));
     } catch (error) {
-      setAiR((p) => ({ ...p, [key]: "Error connecting to AI service." }));
+      setAiR((p) => ({
+        ...p,
+        [key]: {
+          content: "Error connecting to AI service.",
+        },
+      }));
     } finally {
-      setLdg((p) => ({ ...p, [type]: false }));
+      setLdg((p) => ({
+        ...p,
+        [type]: false,
+      }));
     }
   };
 
-  const getR = (type: string) => aiR[`${pat.id}-${type}`];
+  const getR = (type: string) => aiR[`${pat.id}-${type}`]?.content;
+
+  const getResultId = (type: string) => aiR[`${pat.id}-${type}`]?.id;
   const isNP = role === "PMHNP";
 
   const TABS = [
@@ -180,7 +214,8 @@ export default function Dashboard() {
             {tab === "assessments" && <AssessmentsTab patient={pat} />}
             {tab === "clinical_plan" && (
               <ClinicalPlanTab
-                results={{ // map the keys the tab expects
+                results={{
+                  // map the keys the tab expects
                   differential: getR("differential"),
                   treatment_plan: getR("treatment_plan"),
                   loc: getR("loc"),
@@ -208,15 +243,41 @@ export default function Dashboard() {
               <EducationTab
                 patientName={pat.name}
                 result={getR("education")}
+                resultId={getResultId("education")}
                 loading={ldg["education"] || false}
                 onGenerate={(topic) => callAI("education", topic)}
                 noteItems={noteItems}
                 sentItems={sentItems}
                 onAddToNote={(topic) => setNoteItems((p) => [...p, topic])}
                 onSendToPatient={(topic) => setSentItems((p) => [...p, topic])}
-                onDownloadPDF={() =>
-                  showToast("Handout downloaded as PDF", COLORS.purple)
-                }
+                onDownloadPDF={(id?: number) => {
+                  if (!id) {
+                    showToast("Please generate the handout first", COLORS.red);
+                    return;
+                  }
+
+                  // Convert ID to string for URL
+                  const idStr = String(id);
+                  console.log("Downloading PDF for ID:", idStr);
+
+                  const link = document.createElement("a");
+                  link.href = `/api/${idStr}`;
+                  link.download = `handout-${idStr}.pdf`;
+                  link.style.display = "none";
+                  document.body.appendChild(link);
+
+                  try {
+                    link.click();
+                    showToast("Handout downloaded as PDF", COLORS.purple);
+                  } catch (error) {
+                    console.error("Download error:", error);
+                    showToast("Failed to download PDF", COLORS.red);
+                  } finally {
+                    setTimeout(() => {
+                      document.body.removeChild(link);
+                    }, 100);
+                  }
+                }}
                 onShowToast={showToast}
               />
             )}
