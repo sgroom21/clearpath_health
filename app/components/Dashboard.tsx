@@ -126,7 +126,7 @@ export default function Dashboard() {
         companyName: "Clearpath Health",
       });
 
-      const blob = new Blob([bytes], { type: "application/pdf" });
+      const blob = new Blob([bytes as Uint8Array<ArrayBuffer>], { type: "application/pdf" });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement("a");
       a.href     = url;
