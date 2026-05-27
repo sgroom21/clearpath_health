@@ -2,6 +2,7 @@
 
 import { COLORS } from "@/app/components/constants/colors";
 import { AIBlock } from "@/app/components/ui/AIBlock";
+import ReactMarkdown from "react-markdown";
 
 interface ClinicalPlanTabProps {
   results: Record<string, string | undefined>;

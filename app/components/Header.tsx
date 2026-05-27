@@ -1,4 +1,5 @@
 import React from "react";
+import { UserButton } from "@clerk/nextjs";
 import { patients } from "./constants/patients";
 import { COLORS } from "./constants/colors";
 import { scoreColor } from "@/lib/utils";
@@ -161,6 +162,7 @@ const PatientHeader: React.FC<PatientHeaderProps> = ({
             </div>
           ))}
         </div>
+        <UserButton />
       </div>
     </div>
   );
