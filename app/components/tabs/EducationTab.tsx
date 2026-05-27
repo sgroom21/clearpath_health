@@ -15,8 +15,10 @@ interface EducationTabProps {
   sentItems: string[];
   onAddToNote: (topic: string) => void;
   onSendToPatient: (topic: string) => void;
-  onDownloadPDF: (id?: number) => void;
-  onShowToast: (msg: string, color: string) => void;
+  editedContent: string;
+  onEditedContentChange: (v: string) => void;
+  onDownloadPDF: (id?: number, content?: string) => void;
+  onShowToast: (msg: string, color?: string) => void;
 }
 
 export const EducationTab: React.FC<EducationTabProps> = ({
@@ -29,6 +31,8 @@ export const EducationTab: React.FC<EducationTabProps> = ({
   sentItems,
   onAddToNote,
   onSendToPatient,
+  editedContent,
+  onEditedContentChange,
   onDownloadPDF,
   onShowToast,
 }) => {
