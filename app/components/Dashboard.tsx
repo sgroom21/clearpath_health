@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { patients } from "@/app/components/constants/patients";
 import { COLORS } from "@/app/components/constants/colors";
 import { buildPrompts } from "@/lib/instructions";
@@ -12,6 +12,7 @@ import { EducationTab } from "@/app/components/tabs/EducationTab";
 import { scoreColor } from "@/lib/utils";
 import PatientHeader from "@/app/components/Header";
 import PatientSidebar from "@/app/components/PatientSidebar";
+import { createEducationPDF } from "@/lib/pdf";
 
 export default function Dashboard() {
   type AIResult = {
@@ -27,14 +28,28 @@ export default function Dashboard() {
   const [eduCat, setEduCat] = useState("Depression");
   const [noteItems, setNoteItems] = useState<string[]>([]);
   const [sentItems, setSentItems] = useState<string[]>([]);
-  const [toast, setToast] = useState<{ msg: string; color: string } | null>(
-    null,
-  );
+  const [toast, setToast] = useState<{ msg: string; color: string } | null>(null);
+
+  // Tracks the user-edited version of the generated education handout.
+  // Reset whenever a new AI result comes in for the current patient.
+  const [editedHandout, setEditedHandout] = useState<string>("");
 
   const pat = patients.find((p) => p.id === selId)!;
   const phqC = scoreColor(pat.phq9.score, "phq9");
   const gadC = scoreColor(pat.gad7.score, "gad7");
   const hasHS = pat.hardStops.length > 0;
+
+  // ── sync editedHandout whenever the AI result for education changes ───────
+  const educationResult = aiR[`${selId}-education`]?.content;
+  useEffect(() => {
+    setEditedHandout(educationResult ?? "");
+  }, [educationResult]);
+
+  // ── also reset when patient changes ──────────────────────────────────────
+  useEffect(() => {
+    const existing = aiR[`${selId}-education`]?.content;
+    setEditedHandout(existing ?? "");
+  }, [selId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showToast = (msg: string, color: string = COLORS.green) => {
     setToast({ msg, color });
@@ -44,21 +59,15 @@ export default function Dashboard() {
   const callAI = async (type: string, extra: string = "") => {
     const key = `${pat.id}-${type}`;
 
-    setLdg((p) => ({
-      ...p,
-      [type]: true,
-    }));
+    setLdg((p) => ({ ...p, [type]: true }));
 
     const prompt = buildPrompts(pat.id, extra);
-
     const promptText = prompt[type as keyof typeof prompt];
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: "",
           instruction: promptText,
@@ -76,33 +85,67 @@ export default function Dashboard() {
           id: data.resultId,
         },
       }));
-    } catch (error) {
+    } catch {
       setAiR((p) => ({
         ...p,
-        [key]: {
-          content: "Error connecting to AI service.",
-        },
+        [key]: { content: "Error connecting to AI service." },
       }));
     } finally {
-      setLdg((p) => ({
-        ...p,
-        [type]: false,
-      }));
+      setLdg((p) => ({ ...p, [type]: false }));
     }
   };
 
   const getR = (type: string) => aiR[`${pat.id}-${type}`]?.content;
-
   const getResultId = (type: string) => aiR[`${pat.id}-${type}`]?.id;
   const isNP = role === "PMHNP";
 
   const TABS = [
-    { key: "overview", label: "Overview" },
-    { key: "assessments", label: "Assessments" },
+    { key: "overview",      label: "Overview" },
+    { key: "assessments",   label: "Assessments" },
     { key: "clinical_plan", label: "Clinical Plan" },
-    { key: "ai_toolkit", label: "✦ AI Toolkit" },
-    { key: "education", label: "Education Library" },
+    { key: "ai_toolkit",    label: "✦ AI Toolkit" },
+    { key: "education",     label: "Education Library" },
   ];
+
+  // ── client-side PDF download using the edited handout content ────────────
+  const handleDownloadPDF = async (id?: number, content?: string) => {
+    const handoutContent = content ?? editedHandout;
+
+    if (!handoutContent.trim()) {
+      showToast("Please generate the handout first", COLORS.red);
+      return;
+    }
+
+    try {
+      showToast("Generating PDF…", COLORS.muted ?? "#555");
+
+      const bytes = await createEducationPDF({
+        title:       "Patient Handout",
+        content:     handoutContent,
+        patientName: pat.name,
+        companyName: "Clearpath Health",
+      });
+
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `handout-${pat.name.replace(/\s+/g, "-")}.pdf`;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 150);
+
+      showToast("Handout downloaded as PDF", COLORS.purple);
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      showToast("Failed to generate PDF", COLORS.red);
+    }
+  };
 
   return (
     <>
@@ -211,26 +254,28 @@ export default function Dashboard() {
           {/* Tab Content */}
           <div className="flex-1 overflow-y-auto p-5.5">
             {tab === "overview" && <OverviewTab patient={pat} />}
+
             {tab === "assessments" && <AssessmentsTab patient={pat} />}
+
             {tab === "clinical_plan" && (
               <ClinicalPlanTab
                 results={{
-                  // map the keys the tab expects
-                  differential: getR("differential"),
+                  differential:   getR("differential"),
                   treatment_plan: getR("treatment_plan"),
-                  loc: getR("loc"),
+                  loc:            getR("loc"),
                 }}
                 loading={ldg}
                 onGenerate={callAI}
               />
             )}
+
             {tab === "ai_toolkit" && (
               <AIToolkitTab
                 results={{
-                  summary: getR("summary"),
-                  soap: getR("soap"),
-                  med_recs: getR("med_recs"),
-                  lab_recs: getR("lab_recs"),
+                  summary:      getR("summary"),
+                  soap:         getR("soap"),
+                  med_recs:     getR("med_recs"),
+                  lab_recs:     getR("lab_recs"),
                   topic_helper: getR("topic_helper"),
                 }}
                 loading={ldg}
@@ -239,10 +284,11 @@ export default function Dashboard() {
                 onShowToast={showToast}
               />
             )}
+
             {tab === "education" && (
               <EducationTab
                 patientName={pat.name}
-                result={getR("education")}
+                result={educationResult}
                 resultId={getResultId("education")}
                 loading={ldg["education"] || false}
                 onGenerate={(topic) => callAI("education", topic)}
@@ -250,34 +296,11 @@ export default function Dashboard() {
                 sentItems={sentItems}
                 onAddToNote={(topic) => setNoteItems((p) => [...p, topic])}
                 onSendToPatient={(topic) => setSentItems((p) => [...p, topic])}
-                onDownloadPDF={(id?: number) => {
-                  if (!id) {
-                    showToast("Please generate the handout first", COLORS.red);
-                    return;
-                  }
-
-                  // Convert ID to string for URL
-                  const idStr = String(id);
-                  console.log("Downloading PDF for ID:", idStr);
-
-                  const link = document.createElement("a");
-                  link.href = `/api/${idStr}`;
-                  link.download = `handout-${idStr}.pdf`;
-                  link.style.display = "none";
-                  document.body.appendChild(link);
-
-                  try {
-                    link.click();
-                    showToast("Handout downloaded as PDF", COLORS.purple);
-                  } catch (error) {
-                    console.error("Download error:", error);
-                    showToast("Failed to download PDF", COLORS.red);
-                  } finally {
-                    setTimeout(() => {
-                      document.body.removeChild(link);
-                    }, 100);
-                  }
-                }}
+                // Pass both the edited content AND the setter so EducationTab
+                // can render the MarkdownEditor and own the edit state locally.
+                editedContent={editedHandout}
+                onEditedContentChange={setEditedHandout}
+                onDownloadPDF={handleDownloadPDF}
                 onShowToast={showToast}
               />
             )}
