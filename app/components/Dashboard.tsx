@@ -296,8 +296,6 @@ export default function Dashboard() {
                 sentItems={sentItems}
                 onAddToNote={(topic) => setNoteItems((p) => [...p, topic])}
                 onSendToPatient={(topic) => setSentItems((p) => [...p, topic])}
-                // Pass both the edited content AND the setter so EducationTab
-                // can render the MarkdownEditor and own the edit state locally.
                 editedContent={editedHandout}
                 onEditedContentChange={setEditedHandout}
                 onDownloadPDF={handleDownloadPDF}

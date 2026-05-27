@@ -1,18 +1,4 @@
 "use client";
-
-/**
- * EducationTab.tsx — updated props + MarkdownEditor wiring.
- *
- * Changes vs original:
- *  - Accepts editedContent / onEditedContentChange from Dashboard
- *    (Dashboard owns the state so it survives tab switches)
- *  - onDownloadPDF signature extended to (id?: number, content?: string)
- *  - Replaces any static result display with <MarkdownEditor />
- *
- * Everything else (generate button, add-to-note, send-to-patient, etc.)
- * is unchanged — slot it in where your existing JSX lives.
- */
-
 import MarkdownEditor from "@/app/components/MarkdownEditor"; // adjust path if needed
 
 // ── Updated prop types ────────────────────────────────────────────────────────
@@ -32,17 +18,6 @@ interface EducationTabProps {
   onDownloadPDF:          (id?: number, content?: string) => void;
   onShowToast:            (msg: string, color?: string) => void;
 }
-
-// ── Inside your EducationTab component, replace the result display block ─────
-//
-// BEFORE — something like:
-//   {result && (
-//     <div style={{ whiteSpace: "pre-wrap", fontSize: 12, color: "#ccc" }}>
-//       {result}
-//     </div>
-//   )}
-//
-// AFTER:
 function ResultSection({
   result,
   editedContent,
